@@ -6,10 +6,10 @@ export async function GET() {
     "frame": {
       "name": "nadArcade",
       "version": "1",
-      "iconUrl": "https://monad-mini-app-five.vercel.app/icon.png",
+      "iconUrl": "https://i.ibb.co/20ZM5yZB/Whats-App-Image-2025-11-29-at-12-27-46-d3bcf721.jpg",
       "homeUrl": "https://monad-mini-app-five.vercel.app",
       "imageUrl": "https://monad-mini-app-five.vercel.app/image.png",
-      "splashImageUrl": "https://monad-mini-app-five.vercel.app/splash.png",
+      "splashImageUrl": "https://i.ibb.co/WW2HbFmy/Nad-Arcade.png",
       "splashBackgroundColor": "#6200EA",
       "webhookUrl": "https://monad-mini-app-five.vercel.app/api/webhook",
       "subtitle": "Nostalgic Game",
