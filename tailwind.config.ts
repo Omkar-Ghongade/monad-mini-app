@@ -8,10 +8,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      colors: {
+        'neo-yellow': '#FFE66D',
+        'neo-pink': '#FF6B9D',
+        'neo-blue': '#4ECDC4',
+        'neo-green': '#95E1D3',
+        'neo-orange': '#FFA07A',
+        'neo-purple': '#C7CEEA',
+        'neo-red': '#FF6B6B',
+      },
+      borderWidth: {
+        '3': '3px',
+        '4': '4px',
+        '5': '5px',
       },
     },
   },

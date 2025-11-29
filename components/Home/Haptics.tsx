@@ -66,21 +66,21 @@ export function Haptics() {
   }, {} as Record<string, typeof hapticButtons>)
 
   return (
-    <div className="border border-[#333] rounded-md p-4">
-      <h2 className="text-xl font-bold text-left mb-4">Haptics</h2>
+    <div className="border-4 border-black p-6 bg-neo-yellow neobrutal-shadow">
+      <h2 className="text-2xl font-black text-left mb-4 uppercase">Haptics</h2>
       <div className="space-y-6">
         {haptics ? (
           Object.entries(groupedButtons).map(([category, buttons]) => (
-            <div key={category} className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+            <div key={category} className="space-y-3">
+              <h3 className="text-base font-black text-black uppercase border-2 border-black bg-white px-3 py-1 inline-block">
                 {category}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {buttons.map((button) => (
                   <button
                     key={button.type}
                     type="button"
-                    className="bg-white text-black rounded-md p-2 text-sm hover:bg-gray-100 transition-colors"
+                    className="bg-neo-blue text-black border-4 border-black p-2 text-sm font-black uppercase neobrutal-shadow-sm neobrutal-button transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => triggerHaptic(button.type)}
                     disabled={isPending}
                   >
@@ -91,12 +91,12 @@ export function Haptics() {
             </div>
           ))
         ) : (
-          <p className="text-sm text-gray-400">
+          <p className="text-base font-bold text-black border-2 border-black bg-neo-red text-white px-3 py-2">
             Haptics not available on this device
           </p>
         )}
         {result && (
-          <p className="mt-4 text-sm p-2 bg-gray-800 rounded">
+          <p className="mt-4 text-base font-bold border-2 border-black bg-neo-green px-3 py-2">
             {result}
           </p>
         )}

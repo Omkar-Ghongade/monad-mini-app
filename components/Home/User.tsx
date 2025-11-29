@@ -3,45 +3,41 @@ import { useFrame } from '@/components/farcaster-provider'
 export function User() {
   const { context } = useFrame()
 
+  // Try to find Twitter username in various possible properties
+  const user = context?.user as any
+  const twitterUsername = 
+    user?.twitterUsername || 
+    user?.twitter?.username || 
+    user?.verifications?.find((v: any) => v?.platform === 'twitter')?.username ||
+    user?.socialVerifications?.find((v: any) => v?.platform === 'twitter')?.username ||
+    user?.verifiedAddresses?.find((v: any) => v?.platform === 'twitter')?.username ||
+    user?.twitterHandle ||
+    user?.twitter_id
+
+  if (!context?.user) {
+    return null
+  }
+
   return (
-    <div className="space-y-4 border border-[#333] rounded-md p-4">
-      <h2 className="text-xl font-bold text-left">sdk.context</h2>
-      <div className="flex flex-row space-x-4 justify-start items-start">
-        {context?.user ? (
-          <>
-            {context?.user?.pfpUrl && (
-              <img
-                src={context?.user?.pfpUrl}
-                className="w-14 h-14 rounded-full"
-                alt="User Profile"
-                width={56}
-                height={56}
-              />
-            )}
-            <div className="flex flex-col justify-start items-start space-y-2">
-              <p className="text-sm text-left">
-                user.displayName:{' '}
-                <span className="bg-white font-mono text-black rounded-md p-[4px]">
-                  {context?.user?.displayName}
-                </span>
-              </p>
-              <p className="text-sm text-left">
-                user.username:{' '}
-                <span className="bg-white font-mono text-black rounded-md p-[4px]">
-                  {context?.user?.username}
-                </span>
-              </p>
-              <p className="text-sm text-left">
-                user.fid:{' '}
-                <span className="bg-white font-mono text-black rounded-md p-[4px]">
-                  {context?.user?.fid}
-                </span>
-              </p>
-            </div>
-          </>
-        ) : (
-          <p className="text-sm text-left">User context not available</p>
+    <div className="space-y-4 border-4 border-black p-6 bg-neo-blue neobrutal-shadow">
+      <div className="flex flex-row space-x-4 justify-start items-center">
+        {context?.user?.pfpUrl && (
+          <img
+            src={context?.user?.pfpUrl}
+            className="w-16 h-16 border-4 border-black rounded-full"
+            alt="User Profile"
+            width={64}
+            height={64}
+          />
         )}
+        <div className="flex flex-col justify-start items-start space-y-2">
+          <h2 className="text-xl font-black text-left">
+            {context?.user?.displayName || context?.user?.username}
+          </h2>
+          <p className="text-sm font-bold text-gray-600">
+            @{context?.user?.username}
+          </p>
+        </div>
       </div>
     </div>
   )

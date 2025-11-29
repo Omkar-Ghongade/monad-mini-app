@@ -43,13 +43,13 @@ export function NotificationActions() {
     });
 
   return (
-    <div className="border border-[#333] rounded-md p-4">
-      <h2 className="text-xl font-bold text-left mb-2">Notifications</h2>
-      <div className="flex flex-col space-y-2">
+    <div className="border-4 border-black p-6 bg-neo-purple neobrutal-shadow">
+      <h2 className="text-2xl font-black text-left mb-4 uppercase">Notifications</h2>
+      <div className="flex flex-col space-y-3">
         {notificationDetails ? (
           <button
             type="button"
-            className="bg-white text-black rounded-md p-2 text-sm"
+            className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => sendNotification()}
             disabled={isSendingNotification || !notificationDetails}
           >
@@ -59,18 +59,22 @@ export function NotificationActions() {
           <>
             <button
               type="button"
-              className="bg-white text-black rounded-md p-2 text-sm"
+              className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
               onClick={() => actions?.addMiniApp()}
             >
               Add this Mini App to receive notifications
             </button>
-            <p className="text-xs text-red-600">
+            <p className="text-sm font-bold text-black border-2 border-black bg-neo-red text-white px-3 py-2">
               You must add this Mini App and enable notifications to send a test
               notification.
             </p>
           </>
         )}
-        {result && <p className="mt-2 text-sm">{result}</p>}
+        {result && (
+          <p className="mt-2 text-base font-bold border-2 border-black bg-neo-yellow px-3 py-2">
+            {result}
+          </p>
+        )}
       </div>
     </div>
   );

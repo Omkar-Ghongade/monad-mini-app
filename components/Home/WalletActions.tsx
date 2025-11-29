@@ -27,30 +27,30 @@ export function WalletActions() {
 
   if (isConnected) {
     return (
-      <div className="space-y-4 border border-[#333] rounded-md p-4">
-        <h2 className="text-xl font-bold text-left">sdk.wallet.ethProvider</h2>
+      <div className="space-y-4 border-4 border-black p-6 bg-neo-green neobrutal-shadow">
+        <h2 className="text-2xl font-black text-left uppercase">sdk.wallet.ethProvider</h2>
         <div className="flex flex-row space-x-4 justify-start items-start">
-          <div className="flex flex-col space-y-4 justify-start">
-            <p className="text-sm text-left">
+          <div className="flex flex-col space-y-4 justify-start w-full">
+            <p className="text-base font-bold text-left">
               Connected to wallet:{' '}
-              <span className="bg-white font-mono text-black rounded-md p-[4px]">
+              <span className="bg-neo-yellow font-mono text-black border-2 border-black px-2 py-1">
                 {address}
               </span>
             </p>
-            <p className="text-sm text-left">
+            <p className="text-base font-bold text-left">
               Chain Id:{' '}
-              <span className="bg-white font-mono text-black rounded-md p-[4px]">
+              <span className="bg-neo-yellow font-mono text-black border-2 border-black px-2 py-1">
                 {chainId}
               </span>
             </p>
             {chainId === monadTestnet.id ? (
-              <div className="flex flex-col space-y-2 border border-[#333] p-4 rounded-md">
-                <h2 className="text-lg font-semibold text-left">
+              <div className="flex flex-col space-y-3 border-4 border-black p-4 bg-neo-orange neobrutal-shadow-sm">
+                <h2 className="text-lg font-black text-left uppercase">
                   Send Transaction Example
                 </h2>
                 <button
                   type="button"
-                  className="bg-white text-black rounded-md p-2 text-sm"
+                  className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
                   onClick={sendTransactionHandler}
                 >
                   Send Transaction
@@ -58,7 +58,7 @@ export function WalletActions() {
                 {hash && (
                   <button
                     type="button"
-                    className="bg-white text-black rounded-md p-2 text-sm"
+                    className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
                     onClick={() =>
                       window.open(
                         `https://testnet.monadexplorer.com/tx/${hash}`,
@@ -73,7 +73,7 @@ export function WalletActions() {
             ) : (
               <button
                 type="button"
-                className="bg-white text-black rounded-md p-2 text-sm"
+                className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
                 onClick={() => switchChain({ chainId: monadTestnet.id })}
               >
                 Switch to Monad Testnet
@@ -82,7 +82,7 @@ export function WalletActions() {
 
             <button
               type="button"
-              className="bg-white text-black rounded-md p-2 text-sm"
+              className="bg-neo-red text-white border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
               onClick={() => disconnect()}
             >
               Disconnect Wallet
@@ -95,12 +95,12 @@ export function WalletActions() {
 
   if (isEthProviderAvailable) {
     return (
-      <div className="space-y-4 border border-[#333] rounded-md p-4">
-        <h2 className="text-xl font-bold text-left">sdk.wallet.ethProvider</h2>
+      <div className="space-y-4 border-4 border-black p-6 bg-neo-green neobrutal-shadow">
+        <h2 className="text-2xl font-black text-left uppercase">sdk.wallet.ethProvider</h2>
         <div className="flex flex-row space-x-4 justify-start items-start">
           <button
             type="button"
-            className="bg-white text-black w-full rounded-md p-2 text-sm"
+            className="bg-neo-yellow text-black w-full border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
             onClick={() => connect({ connector: miniAppConnector() })}
           >
             Connect Wallet
@@ -111,10 +111,10 @@ export function WalletActions() {
   }
 
   return (
-    <div className="space-y-4 border border-[#333] rounded-md p-4">
-      <h2 className="text-xl font-bold text-left">sdk.wallet.ethProvider</h2>
+    <div className="space-y-4 border-4 border-black p-6 bg-neo-green neobrutal-shadow">
+      <h2 className="text-2xl font-black text-left uppercase">sdk.wallet.ethProvider</h2>
       <div className="flex flex-row space-x-4 justify-start items-start">
-        <p className="text-sm text-left">Wallet connection only via Warpcast</p>
+        <p className="text-base font-bold text-left">Wallet connection only via Warpcast</p>
       </div>
     </div>
   )
