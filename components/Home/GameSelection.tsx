@@ -1,5 +1,7 @@
 'use client'
 
+import { useFrame } from '@/components/farcaster-provider'
+import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
 type Game = {
@@ -34,10 +36,16 @@ type GameSelectionProps = {
 
 export function GameSelection({ onSelectGame }: GameSelectionProps) {
   const { isConnected, address } = useAccount()
-  const { connect, connectors, isPending } = useConnect()
+  const { connect, connectors, isPending, error } = useConnect()
   const { disconnect } = useDisconnect()
+  const { isEthProviderAvailable } = useFrame()
 
-  // Get MetaMask and Phantom connectors
+  // Get Farcaster mini app connector (works in mobile)
+  const farcasterConnector = connectors.find(
+    (connector) => connector.id === 'farcasterMiniApp',
+  )
+  
+  // Get MetaMask and Phantom connectors (browser only)
   const metaMaskConnector = connectors.find(
     (connector) => connector.id === 'injected' && connector.name?.toLowerCase().includes('metamask'),
   )
@@ -51,7 +59,21 @@ export function GameSelection({ onSelectGame }: GameSelectionProps) {
 
   const handleConnect = (connector: any) => {
     if (connector) {
+      try {
+        connect({ connector })
+      } catch (err) {
+        console.error('Connection error:', err)
+      }
+    }
+  }
+
+  const handleFarcasterConnect = () => {
+    try {
+      // Use existing connector if available, otherwise create new one
+      const connector = farcasterConnector || miniAppConnector()
       connect({ connector })
+    } catch (err) {
+      console.error('Farcaster connection error:', err)
     }
   }
 
@@ -85,39 +107,73 @@ export function GameSelection({ onSelectGame }: GameSelectionProps) {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {metaMaskConnector && (
+            <div className="space-y-4">
+              {/* Farcaster Wallet (works in mobile) */}
+              {(isEthProviderAvailable || farcasterConnector) && (
                 <button
                   type="button"
-                  className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
-                  onClick={() => handleConnect(metaMaskConnector)}
+                  className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2 w-full"
+                  onClick={handleFarcasterConnect}
                   disabled={isPending}
                 >
-                  <span className="text-2xl">🦊</span>
-                  <span>MetaMask</span>
+                  <span className="text-2xl">🔷</span>
+                  <span>Farcaster Wallet</span>
                 </button>
               )}
-              {phantomConnector && (
-                <button
-                  type="button"
-                  className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
-                  onClick={() => handleConnect(phantomConnector)}
-                  disabled={isPending}
-                >
-                  <span className="text-2xl">👻</span>
-                  <span>Phantom</span>
-                </button>
+              
+              {/* External Wallets (browser only) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {metaMaskConnector && (
+                  <button
+                    type="button"
+                    className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
+                    onClick={() => handleConnect(metaMaskConnector)}
+                    disabled={isPending}
+                  >
+                    <span className="text-2xl">🦊</span>
+                    <span>MetaMask</span>
+                  </button>
+                )}
+                {phantomConnector && (
+                  <button
+                    type="button"
+                    className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
+                    onClick={() => handleConnect(phantomConnector)}
+                    disabled={isPending}
+                  >
+                    <span className="text-2xl">👻</span>
+                    <span>Phantom</span>
+                  </button>
+                )}
+                {injectedConnector && !metaMaskConnector && !phantomConnector && (
+                  <button
+                    type="button"
+                    className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
+                    onClick={() => handleConnect(injectedConnector)}
+                    disabled={isPending}
+                  >
+                    <span className="text-2xl">🔌</span>
+                    <span>Connect Wallet</span>
+                  </button>
+                )}
+              </div>
+              
+              {/* Error message */}
+              {error && (
+                <div className="bg-neo-red text-white border-4 border-black p-3 neobrutal-shadow">
+                  <p className="text-sm font-bold">
+                    {error.message || 'Failed to connect wallet'}
+                  </p>
+                </div>
               )}
-              {injectedConnector && !metaMaskConnector && !phantomConnector && (
-                <button
-                  type="button"
-                  className="bg-neo-yellow text-black border-4 border-black p-4 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all flex items-center justify-center gap-2"
-                  onClick={() => handleConnect(injectedConnector)}
-                  disabled={isPending}
-                >
-                  <span className="text-2xl">🔌</span>
-                  <span>Connect Wallet</span>
-                </button>
+              
+              {/* No wallets available message */}
+              {!isEthProviderAvailable && !farcasterConnector && !metaMaskConnector && !phantomConnector && !injectedConnector && (
+                <div className="bg-gray-100 border-4 border-black p-3 neobrutal-shadow">
+                  <p className="text-sm font-bold text-gray-700">
+                    No wallets available. Please install a wallet extension or use the Farcaster app.
+                  </p>
+                </div>
               )}
             </div>
           )}
