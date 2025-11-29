@@ -1,6 +1,7 @@
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { http, WagmiProvider, createConfig } from 'wagmi'
+import { injected } from 'wagmi/connectors'
 import { monadTestnet } from 'wagmi/chains'
 
 export const config = createConfig({
@@ -8,7 +9,12 @@ export const config = createConfig({
   transports: {
     [monadTestnet.id]: http(),
   },
-  connectors: [miniAppConnector()],
+  connectors: [
+    miniAppConnector(),
+    injected({ target: 'metaMask' }),
+    injected({ target: 'phantom' }),
+    injected(), // Fallback for other injected wallets
+  ],
 })
 
 const queryClient = new QueryClient()
