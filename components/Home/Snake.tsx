@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useAccount, useConnect, useSendTransaction, useSwitchChain } from 'wagmi'
+import { useAccount, useConnect, useSwitchChain, useWriteContract } from 'wagmi'
 import { monadTestnet } from 'wagmi/chains'
-import { parseEther } from 'viem'
 import { useFrame } from '@/components/farcaster-provider'
+import { Leaderboard } from './Leaderboard'
+import { LEADERBOARD_ABI, LEADERBOARD_CONTRACT_ADDRESS, GAME_SNAKE } from '@/lib/contract'
 
 type Point = { x: number; y: number }
 type Direction = 'Up' | 'Down' | 'Left' | 'Right'
@@ -14,23 +15,23 @@ type SnakeProps = {
 }
 
 export function Snake({ onBack }: SnakeProps) {
-  const { isEthProviderAvailable } = useFrame()
+  const { isEthProviderAvailable, context } = useFrame()
 
   const { isConnected, address, chainId } = useAccount()
   const { connect, connectors } = useConnect()
   const { switchChain } = useSwitchChain()
-  const { sendTransaction, data: txHash, isPending: isSendingTx } = useSendTransaction()
+  const { writeContract, isPending: isSubmittingScore } = useWriteContract()
 
   // Game state
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [score, setScore] = useState(0)
   const scoreRef = useRef(0)
   const [isGameOver, setIsGameOver] = useState(false)
-  const [direction, setDirection] = useState<Direction>('Right') // for UI only
   const directionRef = useRef<Direction>('Right')
   const nextDirectionRef = useRef<Direction>('Right')
   const isGameOverRef = useRef(false)
-  const [rewarded, setRewarded] = useState(false)
+  const hasSubmittedScoreRef = useRef(false)
+  const [direction, setDirection] = useState<Direction>('Right') // for UI only
   const gridSize = 16
   const cell = 16 // px
   const speedMs = useRef(140)
@@ -70,12 +71,11 @@ export function Snake({ onBack }: SnakeProps) {
     setScore(0)
     setIsGameOver(false)
     isGameOverRef.current = false
+    hasSubmittedScoreRef.current = false // Reset submission flag
     setDirection('Right')
     directionRef.current = 'Right'
     nextDirectionRef.current = 'Right'
     speedMs.current = 140
-    // keep rewarded state; a new session can reward again
-    setRewarded(false)
     
     // Redraw canvas and restart game loop
     draw()
@@ -181,6 +181,32 @@ export function Snake({ onBack }: SnakeProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Save best score to contract when game ends (only once per game)
+  useEffect(() => {
+    // Only submit once per game session
+    if (hasSubmittedScoreRef.current) return
+    if (!isGameOver || scoreRef.current === 0) return
+    if (!isConnected || !address || chainId !== monadTestnet.id) return
+    if (isSubmittingScore) return
+
+    // Mark as submitted immediately to prevent duplicate calls
+    hasSubmittedScoreRef.current = true
+
+    try {
+      writeContract({
+        address: LEADERBOARD_CONTRACT_ADDRESS,
+        abi: LEADERBOARD_ABI,
+        functionName: 'submitScore',
+        args: [GAME_SNAKE, BigInt(scoreRef.current)],
+      })
+    } catch (error) {
+      console.error('Error submitting score to contract:', error)
+      // Reset flag on error so user can retry
+      hasSubmittedScoreRef.current = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameOver]) // Only depend on isGameOver to trigger once
+
   // Keyboard
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -215,24 +241,6 @@ export function Snake({ onBack }: SnakeProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [direction, isGameOver])
 
-  // Trigger reward at 10 points (one-time per run)
-  useEffect(() => {
-    if (score >= 10 && !rewarded) {
-      // Only attempt if provider is available and user can sign
-      if (isEthProviderAvailable && isConnected && address && chainId === monadTestnet.id) {
-        try {
-          sendTransaction({
-            to: address,
-            value: parseEther('1'),
-          })
-          setRewarded(true)
-        } catch {
-          // ignore, user may reject
-        }
-      }
-    }
-  }, [score, rewarded, isConnected, address, chainId, sendTransaction, isEthProviderAvailable])
-
   const canPlay = isEthProviderAvailable
   const needConnect = canPlay && !isConnected
   const needSwitch = canPlay && isConnected && chainId !== monadTestnet.id
@@ -258,7 +266,7 @@ export function Snake({ onBack }: SnakeProps) {
   }
 
   return (
-    <div className="w-full flex items-center justify-center">
+    <div className="w-full flex flex-col items-center justify-center">
       <div className="border-8 border-black rounded-[28px] p-4 bg-neutral-100 neobrutal-shadow w-[360px]">
         {/* Nokia top speaker + brand stripe */}
         <div className="flex flex-col items-center mb-3">
@@ -281,18 +289,6 @@ export function Snake({ onBack }: SnakeProps) {
                 <div className="w-full text-center text-xs font-black border-4 border-black bg-[#b6dd7e] px-2 py-1">
                   GAME OVER — PRESS ENTER OR TAP RESTART
                 </div>
-              </div>
-            )}
-            {txHash && (
-              <div className="px-3 pb-2">
-                <a
-                  className="block text-center text-xs font-black underline"
-                  href={`https://testnet.monadexplorer.com/tx/${txHash}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View Reward Tx
-                </a>
               </div>
             )}
           </div>
@@ -382,9 +378,11 @@ export function Snake({ onBack }: SnakeProps) {
         {isConnected && (
           <div className="mt-3 text-[10px] text-center">
             <span className="font-black">Player:</span> {address?.slice(0, 6)}…{address?.slice(-4)}
-            {isSendingTx ? ' — confirming…' : ''}
           </div>
         )}
+      </div>
+      <div className="w-full max-w-[360px] mt-6 md:hidden">
+        <Leaderboard />
       </div>
     </div>
   )

@@ -16,6 +16,13 @@ const games: Game[] = [
     color: 'bg-neo-green',
     icon: '🐍',
   },
+  {
+    id: 'bounce',
+    name: 'Bounce Classic',
+    description: 'Break bricks with a bouncing ball',
+    color: 'bg-neo-blue',
+    icon: '⚽',
+  },
   // Add more games here in the future
 ]
 
@@ -25,7 +32,7 @@ type GameSelectionProps = {
 
 export function GameSelection({ onSelectGame }: GameSelectionProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start p-6 space-y-6 bg-white overflow-y-auto">
+    <div className="flex h-screen flex-col items-center justify-start p-6 space-y-6 bg-white overflow-y-auto">
       <div className="w-full max-w-4xl space-y-6">
         <div className="text-center space-y-2 mb-8">
           <h1 className="text-5xl font-black border-4 border-black px-6 py-4 bg-neo-yellow neobrutal-shadow inline-block">
