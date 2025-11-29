@@ -18,9 +18,9 @@ export async function GET() {
     },
     "accountAssociation": {
       "header": "eyJmaWQiOjExNTEyMjcsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhiYURmNzA5RDA1NUQ3M2I2RDg4NjAyMzdlMTkxNTAxM2NhYzBmNGYzIn0",
-      "payload": "eyJkb21haW4iOiJodHRwczovL21vbmFkLW1pbmktYXBwLm5ldGxpZnkuYXBwLyJ9",
-      "signature": "FMzSAp8XveN4X2cfnb0rkDvGr5w9FIoFVWj/4cEodbUETDMrxvMSs6UfJ5gObCpEM4W2YdRexxsE7PGcj4uHWRw="
-    } 
+      "payload": "eyJkb21haW4iOiJtb25hZC1taW5pLWFwcC5uZXRsaWZ5LmFwcCJ9",
+      "signature": "O5zrzt+xTCNzc9ROrD5muiDDOz/hfPIbus62LCU/w79YkObrwtxvB0Zn/6/CfyvtcOroYaa0/C031VsPem6deRs="
+  }
   };
 
   return NextResponse.json(farcasterConfig);
