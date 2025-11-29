@@ -21,11 +21,32 @@ contract Leaderboard {
     // Maximum number of top scores to keep per game
     uint256 public constant MAX_TOP_SCORES = 100;
     
+    // Reward amount: 0.5 MON = 0.5 * 10^18 wei
+    uint256 public constant REWARD_AMOUNT = 5e17; // 0.5 MON
+    
+    // Last reward timestamp
+    uint256 public lastRewardTime;
+    
+    // Reward interval: 5 minutes = 300 seconds
+    uint256 public constant REWARD_INTERVAL = 300;
+    
     event ScoreSubmitted(
         uint8 indexed gameId,
         address indexed player,
         uint256 score,
         bool isNewBest
+    );
+    
+    event RewardDistributed(
+        address indexed winner,
+        uint8 indexed gameId,
+        uint256 amount,
+        uint256 timestamp
+    );
+    
+    event LeaderboardReset(
+        uint8 indexed gameId,
+        uint256 timestamp
     );
     
     /**
@@ -147,6 +168,110 @@ contract Leaderboard {
                 scores[i - 1] = temp;
             }
         }
+    }
+    
+    /**
+     * @dev Receive MON tokens
+     */
+    receive() external payable {}
+    
+    /**
+     * @dev Fallback function to receive MON tokens
+     */
+    fallback() external payable {}
+    
+    /**
+     * @dev Distribute reward to top player and reset leaderboard for a specific game
+     * Can be called by anyone, but only if enough time has passed
+     * @param gameId The game ID (0 = snake, 1 = bounce)
+     */
+    function distributeRewardAndReset(uint8 gameId) external {
+        require(gameId <= GAME_BOUNCE, "Invalid game ID");
+        require(block.timestamp >= lastRewardTime + REWARD_INTERVAL, "Reward interval not met");
+        
+        Score[] storage scores = topScores[gameId];
+        
+        // Check if there's a top player
+        if (scores.length > 0) {
+            address winner = scores[0].player;
+            uint256 contractBalance = address(this).balance;
+            
+            // Only send reward if contract has enough balance
+            if (contractBalance >= REWARD_AMOUNT) {
+                // Send reward to winner
+                (bool success, ) = payable(winner).call{value: REWARD_AMOUNT}("");
+                require(success, "Failed to send reward");
+                
+                emit RewardDistributed(winner, gameId, REWARD_AMOUNT, block.timestamp);
+            }
+        }
+        
+        // Reset leaderboard for this game
+        delete topScores[gameId];
+        
+        // Reset all player scores for this game
+        // Note: We can't iterate over mappings, so we'll just clear the top scores
+        // Individual player scores will be overwritten when they submit new scores
+        
+        emit LeaderboardReset(gameId, block.timestamp);
+        
+        // Update last reward time
+        lastRewardTime = block.timestamp;
+    }
+    
+    /**
+     * @dev Distribute rewards to top players for both games and reset all leaderboards
+     * Can be called by anyone, but only if enough time has passed
+     */
+    function distributeRewardsAndResetAll() external {
+        require(block.timestamp >= lastRewardTime + REWARD_INTERVAL, "Reward interval not met");
+        
+        uint256 contractBalance = address(this).balance;
+        
+        // Process Snake game
+        Score[] storage snakeScores = topScores[GAME_SNAKE];
+        if (snakeScores.length > 0 && contractBalance >= REWARD_AMOUNT) {
+            address winner = snakeScores[0].player;
+            (bool success, ) = payable(winner).call{value: REWARD_AMOUNT}("");
+            if (success) {
+                contractBalance -= REWARD_AMOUNT;
+                emit RewardDistributed(winner, GAME_SNAKE, REWARD_AMOUNT, block.timestamp);
+            }
+        }
+        delete topScores[GAME_SNAKE];
+        emit LeaderboardReset(GAME_SNAKE, block.timestamp);
+        
+        // Process Bounce game
+        Score[] storage bounceScores = topScores[GAME_BOUNCE];
+        if (bounceScores.length > 0 && contractBalance >= REWARD_AMOUNT) {
+            address winner = bounceScores[0].player;
+            (bool success, ) = payable(winner).call{value: REWARD_AMOUNT}("");
+            if (success) {
+                emit RewardDistributed(winner, GAME_BOUNCE, REWARD_AMOUNT, block.timestamp);
+            }
+        }
+        delete topScores[GAME_BOUNCE];
+        emit LeaderboardReset(GAME_BOUNCE, block.timestamp);
+        
+        // Update last reward time
+        lastRewardTime = block.timestamp;
+    }
+    
+    /**
+     * @dev Get contract balance
+     */
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+    
+    /**
+     * @dev Get time until next reward can be distributed
+     */
+    function getTimeUntilNextReward() external view returns (uint256) {
+        if (block.timestamp >= lastRewardTime + REWARD_INTERVAL) {
+            return 0;
+        }
+        return (lastRewardTime + REWARD_INTERVAL) - block.timestamp;
     }
 }
 

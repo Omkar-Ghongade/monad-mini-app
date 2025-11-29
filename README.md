@@ -292,3 +292,68 @@ In this guide, you explored Farcaster Mini Apps — the simplest way to create e
 You also discovered the key capabilities of Mini Apps and how you can use the [Monad Farcaster MiniApp Template](https://github.com/monad-developers/monad-miniapp-template) to build your own.
 
 For more details, check out the official Mini App documentation [here](https://miniapps.farcaster.xyz/).
+
+## Automatic Reward Distribution System
+
+The leaderboard contract includes an automatic reward distribution system that runs every 5 minutes:
+
+### How It Works
+
+1. **Every 5 minutes**, a cron job automatically:
+   - Identifies the top player for each game (Snake and Bounce)
+   - Sends **0.5 MON** tokens to the winner
+   - Resets the leaderboard for that game
+
+2. **Contract Features**:
+   - The contract can receive MON tokens via the `receive()` function
+   - Only distributes rewards if at least 5 minutes have passed since the last distribution
+   - Only sends rewards if the contract has sufficient balance (≥ 0.5 MON)
+   - Automatically resets leaderboards after reward distribution
+
+### Setup Instructions
+
+1. **Deploy the Updated Contract**:
+   - Compile and deploy the updated `contracts/Leaderboard.sol` contract
+   - Update `NEXT_PUBLIC_LEADERBOARD_CONTRACT_ADDRESS` in your `.env.local`
+
+2. **Fund the Contract**:
+   - Send MON tokens to the contract address to fund rewards
+   - The contract needs at least 0.5 MON per game per distribution cycle
+
+3. **Configure Environment Variables**:
+   ```bash
+   # Required: Private key of wallet that will execute reward distribution
+   REWARD_DISTRIBUTOR_PRIVATE_KEY=your_private_key_here
+   
+   # Optional: Secret for securing the cron endpoint
+   CRON_SECRET=your_random_secret_here
+   ```
+
+4. **Vercel Cron Configuration**:
+   - The `vercel.json` file is already configured to run the cron job every 5 minutes
+   - On Vercel, the cron job will automatically activate
+   - For local testing, you can manually call: `GET /api/cron/reward`
+
+### Manual Testing
+
+You can manually trigger the reward distribution by calling:
+```bash
+curl http://localhost:3000/api/cron/reward
+```
+
+Or with authentication (if `CRON_SECRET` is set):
+```bash
+curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3000/api/cron/reward
+```
+
+### Contract Functions
+
+- `distributeRewardAndReset(uint8 gameId)`: Distributes reward to top player and resets leaderboard
+- `getBalance()`: Returns the contract's MON token balance
+- `getTimeUntilNextReward()`: Returns seconds until next reward can be distributed
+- `lastRewardTime`: Public variable showing the timestamp of the last reward distribution
+
+### Events
+
+- `RewardDistributed(address winner, uint8 gameId, uint256 amount, uint256 timestamp)`: Emitted when a reward is sent
+- `LeaderboardReset(uint8 gameId, uint256 timestamp)`: Emitted when a leaderboard is reset
