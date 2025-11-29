@@ -9,7 +9,7 @@ const frame = {
     title: 'Launch Template',
     action: {
       type: 'launch_frame',
-      name: 'Monad Farcaster MiniApp Template',
+      name: 'nadArcade',
       url: APP_URL,
       splashImageUrl: `${APP_URL}/images/splash.png`,
       splashBackgroundColor: '#f7f7f7',
@@ -19,9 +19,9 @@ const frame = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Monad Farcaster MiniApp Template',
+    title: 'nadArcade',
     openGraph: {
-      title: 'Monad Farcaster MiniApp Template',
+      title: 'nadArcade',
       description: 'A template for building mini-apps on Farcaster and Monad',
     },
     other: {

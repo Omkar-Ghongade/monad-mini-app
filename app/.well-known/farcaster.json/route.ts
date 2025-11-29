@@ -4,7 +4,7 @@ import { APP_URL } from "../../../lib/constants";
 export async function GET() {
   const farcasterConfig = {
     "frame": {
-      "name": "Nokia Snake",
+      "name": "nadArcade",
       "version": "1",
       "iconUrl": "https://monad-mini-app-five.vercel.app/icon.png",
       "homeUrl": "https://monad-mini-app-five.vercel.app",

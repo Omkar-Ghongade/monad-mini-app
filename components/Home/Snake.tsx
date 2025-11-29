@@ -53,6 +53,13 @@ export function Snake() {
   )
 
   function resetGame() {
+    // Clear existing timer
+    if (tickTimer.current) {
+      clearTimeout(tickTimer.current)
+      tickTimer.current = null
+    }
+    
+    // Reset game state
     snake.current = [{ x: 6, y: 8 }, { x: 5, y: 8 }, { x: 4, y: 8 }]
     food.current = randomFood()
     scoreRef.current = 0
@@ -65,6 +72,12 @@ export function Snake() {
     speedMs.current = 140
     // keep rewarded state; a new session can reward again
     setRewarded(false)
+    
+    // Redraw canvas and restart game loop
+    draw()
+    if (!tickTimer.current) {
+      tickTimer.current = setTimeout(step, speedMs.current)
+    }
   }
 
   // Drawing
@@ -168,6 +181,11 @@ export function Snake() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const key = e.key
+      // Prevent default scrolling for arrow keys
+      if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+        e.preventDefault()
+      }
+      
       if (key === 'ArrowUp' && directionRef.current !== 'Down') {
         nextDirectionRef.current = 'Up'
         setDirection('Up')
@@ -184,7 +202,10 @@ export function Snake() {
         nextDirectionRef.current = 'Right'
         setDirection('Right')
       }
-      if (key === 'Enter' && isGameOver) resetGame()
+      if (key === 'Enter' && isGameOver) {
+        e.preventDefault()
+        resetGame()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

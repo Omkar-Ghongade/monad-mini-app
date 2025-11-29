@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
                   fontFamily: 'Inter, system-ui, sans-serif',
                 }}
               >
-                Generated using Monad Mini App Template
+                Generated using nadArcade
               </p>
             </div>
           </div>

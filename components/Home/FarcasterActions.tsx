@@ -30,7 +30,7 @@ export function FarcasterActions() {
               className="bg-neo-yellow text-black border-4 border-black p-3 text-base font-black uppercase neobrutal-shadow neobrutal-button transition-all"
               onClick={() =>
                 actions?.composeCast({
-                  text: 'Check out this Monad Farcaster MiniApp Template!',
+                  text: 'Check out nadArcade!',
                   embeds: [`${APP_URL}`],
                 })
               }

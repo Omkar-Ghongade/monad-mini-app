@@ -1,16 +1,27 @@
 'use client'
 
-import { User } from '@/components/Home/User'
-import { Tweets } from './Tweets'
+import { useState } from 'react'
+import { GameSelection } from './GameSelection'
 import { Snake } from './Snake'
 
 export function Demo() {
+  const [selectedGame, setSelectedGame] = useState<string | null>(null)
+
+  const handleSelectGame = (gameId: string) => {
+    setSelectedGame(gameId)
+  }
+
+  // Show game selection screen by default
+  if (!selectedGame) {
+    return <GameSelection onSelectGame={handleSelectGame} />
+  }
+
+  // Show selected game
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start p-6 space-y-6 bg-white">
+    <div className="flex min-h-screen flex-col items-center justify-start p-6 space-y-6 bg-white overflow-y-auto">
       <div className="w-full max-w-4xl space-y-6">
-        <User />
-        <Snake />
-        <Tweets />
+        {/* Render selected game */}
+        {selectedGame === 'snake' && <Snake />}
       </div>
     </div>
   )
