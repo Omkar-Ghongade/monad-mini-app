@@ -16,12 +16,16 @@ export function Demo() {
     return <GameSelection onSelectGame={handleSelectGame} />
   }
 
+  const handleBack = () => {
+    setSelectedGame(null)
+  }
+
   // Show selected game
   return (
     <div className="flex min-h-screen flex-col items-center justify-start p-6 space-y-6 bg-white overflow-y-auto">
       <div className="w-full max-w-4xl space-y-6">
         {/* Render selected game */}
-        {selectedGame === 'snake' && <Snake />}
+        {selectedGame === 'snake' && <Snake onBack={handleBack} />}
       </div>
     </div>
   )

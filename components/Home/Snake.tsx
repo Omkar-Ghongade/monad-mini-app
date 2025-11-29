@@ -9,7 +9,11 @@ import { useFrame } from '@/components/farcaster-provider'
 type Point = { x: number; y: number }
 type Direction = 'Up' | 'Down' | 'Left' | 'Right'
 
-export function Snake() {
+type SnakeProps = {
+  onBack?: () => void
+}
+
+export function Snake({ onBack }: SnakeProps) {
   const { isEthProviderAvailable } = useFrame()
 
   const { isConnected, address, chainId } = useAccount()
@@ -320,9 +324,18 @@ export function Snake() {
             </button>
           )}
           <div className="grid grid-cols-3 gap-2">
+            {onBack && (
+              <button
+                type="button"
+                className="bg-neo-blue text-white border-4 border-black px-3 py-2 text-sm font-black uppercase neobrutal-button"
+                onClick={onBack}
+              >
+                ← Back
+              </button>
+            )}
             <button
               type="button"
-              className="col-span-3 bg-neo-green border-4 border-black px-3 py-2 text-sm font-black uppercase neobrutal-button"
+              className={onBack ? "col-span-2 bg-neo-green border-4 border-black px-3 py-2 text-sm font-black uppercase neobrutal-button" : "col-span-3 bg-neo-green border-4 border-black px-3 py-2 text-sm font-black uppercase neobrutal-button"}
               onClick={() => resetGame()}
             >
               Restart
